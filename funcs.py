@@ -65,3 +65,7 @@ def change_brightness(value):
 # change_brightness('+10')  # Повысить яркость на 10 единиц
 # change_brightness('-10')  # Понизить яркость на 10 единиц
 # change_brightness('50')   # Установить яркость на 50 единиц
+
+
+def  get_brightness():
+    return int(sbc.get_brightness()[0])

@@ -32,26 +32,34 @@ def open_app(call):
 @bot.callback_query_handler(func=lambda call: True)
 def callback_handler(call):
     def volume(message):
+        old = ''
         user_id = message.from_user.id
         bot.delete_message(user_id, message.id)
+        current = get_brightness()
         change_brightness(str(message.text))
-        bot.edit_message_text("Вы изменили яркость",
-                              chat_id=call.message.chat.id,
-                              message_id=call.message.message_id,
-                              reply_markup=keyboard)
+        new = get_brightness()
+        if current != new:
+            bot.edit_message_text(f"Вы изменили яркость. Текущая яркость: {get_brightness()}",
+                                chat_id=call.message.chat.id,
+                                message_id=call.message.message_id,
+                                reply_markup=keyboard)
+        bot.register_next_step_handler(call.message, volume)
 
     if call.data == 'menu_1':
         keyboard = types.InlineKeyboardMarkup()
         back_button = types.InlineKeyboardButton("Назад", callback_data='main_menu')
         keyboard.add(back_button)
-        bot.edit_message_text("Введите новую яркость: ",
+        bot.edit_message_text("""Введите новую яркость в формате:
++ <число> - увеличить яркость на число
+- <число> - уменьшить яркость на число
+<число> - установить значение яркости на число""",
                               chat_id=call.message.chat.id,
                               message_id=call.message.message_id,
                               reply_markup=keyboard)
         bot.register_next_step_handler(call.message, volume)
 
     elif call.data == 'menu_2':
-        bot.edit_message_text("Вы в меню 2",
+        bot.edit_message_text("Чтобы запустить приложение, нажмите на соответствующую кнопку.",
                               chat_id=call.message.chat.id,
                               message_id=call.message.message_id,
                               reply_markup=menu_2_key())
