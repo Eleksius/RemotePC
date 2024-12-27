@@ -5,7 +5,7 @@ from keyboards import *
 import os
 import logging
 
-TOKEN = '7366018190:AAHSqcxKUFknj6mS3mcGdp5Nx-zHdMBg184'
+TOKEN = 'TOKEN'
 bot = telebot.TeleBot(TOKEN)
 
 
