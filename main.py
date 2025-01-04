@@ -9,6 +9,7 @@ from config import *
 explorer = 0
 browser = 0
 
+TOKEN = 'TOKEN'
 bot = telebot.TeleBot(TOKEN)
 
 @bot.message_handler(commands=['start'])
