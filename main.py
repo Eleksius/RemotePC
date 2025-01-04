@@ -4,10 +4,12 @@ from telebot import types
 from keyboards import *
 import os
 import logging
+from config import *
 
-TOKEN = '7366018190:AAHSqcxKUFknj6mS3mcGdp5Nx-zHdMBg184'
+explorer = 0
+browser = 0
+
 bot = telebot.TeleBot(TOKEN)
-
 
 @bot.message_handler(commands=['start'])
 def start_menu(message):
@@ -18,14 +20,19 @@ def start_menu(message):
 @bot.callback_query_handler(func=lambda call: call.data.startswith('open_'))
 def open_app(call):
     app = call.data.split('_')[1]
-    os.system(f"start {app}")
-    if call.message.text.startswith("Открыт"):
-        pass
+    if globals()[app] == 0:
+        globals()[app] += 1
+        os.system(f"start {app}")
+        if call.message.text.split()[1] == app:
+            pass
+        else:
+            bot.edit_message_text(f"Открыт {app}",
+                                chat_id=call.message.chat.id,
+                                message_id=call.message.message_id,
+                                reply_markup=menu_2_key())
     else:
-        bot.edit_message_text(f"Открыт {app}",
-                              chat_id=call.message.chat.id,
-                              message_id=call.message.message_id,
-                              reply_markup=menu_2_key())
+        globals()[app] = 0
+        
 
 
 # ---MENU---
