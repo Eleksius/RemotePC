@@ -15,7 +15,7 @@ def start_menu(message):
     bot.send_message(message.chat.id, START_TEXT, reply_markup=start_key())
 
 
-# ---FUNCS-----
+# ---FUNCTIONS-----
 @bot.callback_query_handler(func=lambda call: call.data.startswith('open_'))
 def open_app(call):
     app = call.data.split('_')[1]
