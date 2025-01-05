@@ -3,7 +3,6 @@ import telebot
 from telebot import types
 from assets.keyboards import *
 import os
-import logging
 from assets.config import *
 
 explorer = 0
