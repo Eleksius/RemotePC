@@ -1,20 +1,19 @@
-from funcs import *
+from assets.funcs import *
 import telebot
 from telebot import types
-from keyboards import *
+from assets.keyboards import *
 import os
 import logging
-from config import *
+from assets.config import *
 
 explorer = 0
 browser = 0
 
-TOKEN = 'TOKEN'
 bot = telebot.TeleBot(TOKEN)
 
 @bot.message_handler(commands=['start'])
 def start_menu(message):
-    bot.send_message(message.chat.id, "Главное меню", reply_markup=start_key())
+    bot.send_message(message.chat.id, START_TEXT, reply_markup=start_key())
 
 
 # ---FUNCS-----
@@ -33,7 +32,39 @@ def open_app(call):
                                 reply_markup=menu_2_key())
     else:
         globals()[app] = 0
-        
+
+
+@bot.callback_query_handler(func=lambda call: call.data == "shutdown_now")
+def shut_now(call):
+    txt = "Компьютер будет выключен"
+    if call.message.text != txt:
+        bot.edit_message_text(txt,
+                            chat_id=call.message.chat.id,
+                            message_id=call.message.message_id,
+                            reply_markup=menu_3_key)
+    shutdown(0)
+
+
+@bot.callback_query_handler(func=lambda call: call.data == "shutdown_then")
+def shut_then(call):
+    def shut(message):
+        user_id = message.from_user.id
+        bot.delete_message(user_id, message.id)
+        sec = int(message.text)
+        shutdown(sec)
+        txt = f"Компьютер будет выключен через секунд: {sec}"
+        bot.edit_message_text(txt,
+                                chat_id=call.message.chat.id,
+                                message_id=call.message.message_id,
+                                reply_markup=back_menu3())
+
+    txt = "Введите количество секунд, через которое выключить компьютер:"
+    if call.message.text != txt:
+        bot.edit_message_text(txt,
+                                chat_id=call.message.chat.id,
+                                message_id=call.message.message_id,
+                                reply_markup=back_menu3())
+    bot.register_next_step_handler(call.message, shut)
 
 
 # ---MENU---
@@ -50,20 +81,17 @@ def callback_handler(call):
             bot.edit_message_text(f"Вы изменили яркость. Текущая яркость: {get_brightness()}",
                                 chat_id=call.message.chat.id,
                                 message_id=call.message.message_id,
-                                reply_markup=keyboard)
+                                reply_markup=back_menu())
         bot.register_next_step_handler(call.message, volume)
 
     if call.data == 'menu_1':
-        keyboard = types.InlineKeyboardMarkup()
-        back_button = types.InlineKeyboardButton("Назад", callback_data='main_menu')
-        keyboard.add(back_button)
         bot.edit_message_text("""Введите новую яркость в формате:
 + <число> - увеличить яркость на число
 - <число> - уменьшить яркость на число
 <число> - установить значение яркости на число""",
                               chat_id=call.message.chat.id,
                               message_id=call.message.message_id,
-                              reply_markup=keyboard)
+                              reply_markup=back_menu())
         bot.register_next_step_handler(call.message, volume)
 
     elif call.data == 'menu_2':
@@ -71,10 +99,16 @@ def callback_handler(call):
                               chat_id=call.message.chat.id,
                               message_id=call.message.message_id,
                               reply_markup=menu_2_key())
+        
+    elif call.data == "menu_3":
+        bot.edit_message_text("Выберите действие из списка",
+                              reply_markup=menu_3_key(),
+                              chat_id=call.message.chat.id,
+                              message_id=call.message.message_id)
 
     elif call.data == 'main_menu':
         bot.clear_step_handler_by_chat_id(call.message.chat.id)
-        bot.edit_message_text("Главное меню:",
+        bot.edit_message_text(START_TEXT,
                               reply_markup=start_key(),
                               chat_id=call.message.chat.id,
                               message_id=call.message.message_id)

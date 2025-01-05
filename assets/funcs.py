@@ -2,6 +2,11 @@ from ctypes import cast, POINTER
 from comtypes import CLSCTX_ALL
 from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 import screen_brightness_control as sbc
+import os
+
+
+def shutdown(value:int) -> None:
+    os.system(f"shutdown /s /t {value}")
 
 
 def change_volume(value):
